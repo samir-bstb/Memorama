@@ -154,12 +154,14 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   btn_init();
   led_init();
+  int y = 0;
 
   while (1)
   {
     /* USER CODE END WHILE */
 	start();
-	create_secuence;
+	create_secuence(2000, y);
+	y++;
 
 
     /* USER CODE BEGIN 3 */

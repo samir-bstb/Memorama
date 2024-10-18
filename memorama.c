@@ -76,6 +76,9 @@ uint16_t Button_Pins[] = {btn_up_Pin, btn_right_Pin, btn_down_Pin , btn_left_Pin
 
 int cur_sec[10];
 
+int user_sec[20]; //suitable for every level (easy, medium & hard)
+
+//button read functions
 int read_buttons(void){
 	while (1) {
 		for (int i = 0; i < 5; i++) {
@@ -91,6 +94,25 @@ int read_buttons(void){
 	}
 }
 
+void btn_a_led(int idx){
+	int x = 0;
+	for(int i = 0; i < 5; i++){
+		if(HAL_GPIO_ReadPin(Button_Ports[i], Button_Pins[i])){
+			HAL_Delay(40);
+            if (HAL_GPIO_ReadPin(Button_Ports[i], Button_Pins[i]) == GPIO_PIN_SET) {
+                HAL_GPIO_WritePin(led_ports[i], led_pins[i], GPIO_PIN_SET);  // Turn LED on
+                while (HAL_GPIO_ReadPin(Button_Ports[i], Button_Pins[i]) == GPIO_PIN_SET);
+                HAL_Delay(40);
+                user_sec[idx] = (x|1) << (4-i); //posicion en la que el usuario prende un led
+                HAL_GPIO_WritePin(led_ports[i], led_pins[i], GPIO_PIN_RESET);  // Turn LED off
+            }
+		}
+	}
+
+	return;
+}
+
+//Game inicialization
 void start(){
 	LCD_WR_string("MEMORAMA");
 	LCD_WR_inst(0b11000000);
@@ -104,6 +126,7 @@ void start(){
 	}
 }
 
+//Reset Game
 void reset(){
 	LCD_WR_inst(LCD_clean);
 	for (int i = 0; i < 5; i++) {
@@ -118,7 +141,17 @@ void create_secuence(int delay, int idx){
 	HAL_GPIO_WritePin(led_ports[k], led_pins[k], GPIO_PIN_SET);
 	cur_sec[idx] = (x|1) << (4-k);
 	HAL_Delay(delay);
+	HAL_GPIO_WritePin(led_ports[k], led_pins[k], GPIO_PIN_RESET);
 }
+
+void verify_entry(int lim){
+	for(int i = 0; i <= lim; i++){
+		if (user_sec[i] != cur_sec[i]){
+			return;//we need to return something 
+		}
+	}
+}
+
 
 int main(void)
 {
@@ -154,13 +187,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   btn_init();
   led_init();
-  int y = 0;
+  int y = 0; //longitud de secuencia
 
   while (1)
   {
     /* USER CODE END WHILE */
 	start();
 	create_secuence(2000, y);
+	for(int j = 0; i < (y+1); j++){//leer el boton "y" veces
+		btn_a_led(j);
+	}
+	verify_entry();
 	y++;
 
 

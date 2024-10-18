@@ -132,9 +132,12 @@ void reset(){
 	for (int i = 0; i < 5; i++) {
 		HAL_GPIO_WritePin(led_ports[i], led_pins[i], GPIO_PIN_RESET);
 	}
+	for (int i = 0; i < 10; i++) {
+		cur_sec[i] = 0;
+	}
 }
 
-void create_secuence(int delay, int idx){
+void create_sequence(int delay, int idx){
 	int x = 0;
 	srand(HAL_GetTick());
 	int k = (rand() % 5);
@@ -144,10 +147,10 @@ void create_secuence(int delay, int idx){
 	HAL_GPIO_WritePin(led_ports[k], led_pins[k], GPIO_PIN_RESET);
 }
 
-void verify_entry(int lim){
+int verify_entry(int lim){
 	for(int i = 0; i <= lim; i++){
 		if (user_sec[i] != cur_sec[i]){
-			return;//we need to return something 
+			return 0; //returns False
 		}
 	}
 }
@@ -187,17 +190,23 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   btn_init();
   led_init();
-  int y = 0; //longitud de secuencia
+  int y = 0; //sequence length
+  int state = 0; // 0 (when you lose or the game is starting), 1 (when playing)
 
   while (1)
   {
     /* USER CODE END WHILE */
 	start();
-	create_secuence(2000, y);
+	create_sequence(2000, y);
 	for(int j = 0; i < (y+1); j++){//leer el boton "y" veces
 		btn_a_led(j);
 	}
-	verify_entry();
+	int usr_entry = verify_entry(y);
+	if(usr_entry == 0){
+		state = 0;
+		reset();
+	}
+	
 	y++;
 
 

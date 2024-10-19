@@ -147,7 +147,7 @@ void create_sequence(int delay, int idx){
 	HAL_GPIO_WritePin(led_ports[k], led_pins[k], GPIO_PIN_RESET);
 }
 
-int verify_entry(int lim){ //determines whether the user wins or loses
+int verify_entry(int lim){ //determines whether the user continues or loses
 	for(int i = 0; i <= lim; i++){
 		if (user_sec[i] != cur_sec[i]){
 			return 0; //returns False

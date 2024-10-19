@@ -104,6 +104,7 @@ void btn_a_led(int idx){
                 while (HAL_GPIO_ReadPin(Button_Ports[i], Button_Pins[i]) == GPIO_PIN_SET);
                 HAL_Delay(40);
                 user_sec[idx] = (x|1) << (4-i); //posicion en la que el usuario prende un led
+		HAL_Delay(600);
                 HAL_GPIO_WritePin(led_ports[i], led_pins[i], GPIO_PIN_RESET);  // Turn LED off
             }
 		}

@@ -205,6 +205,7 @@ int main(void)
 	
 	if(state == 1){
 		create_sequence(2000, y);
+		//add a function that plays the secuence
 		for(int j = 0; j < (y+1); j++){//leer el boton "y" veces
 			btn_a_led(j);
 		}

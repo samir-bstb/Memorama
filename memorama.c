@@ -147,7 +147,7 @@ void create_sequence(int delay, int idx){
 	HAL_GPIO_WritePin(led_ports[k], led_pins[k], GPIO_PIN_RESET);
 }
 
-int verify_entry(int lim){
+int verify_entry(int lim){ //determines whether the user wins or loses
 	for(int i = 0; i <= lim; i++){
 		if (user_sec[i] != cur_sec[i]){
 			return 0; //returns False
@@ -196,19 +196,23 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	start();
-	create_sequence(2000, y);
-	for(int j = 0; i < (y+1); j++){//leer el boton "y" veces
-		btn_a_led(j);
-	}
-	int usr_entry = verify_entry(y);
-	if(usr_entry == 0){
-		state = 0;
-		reset();
+	if(state == 0){
+		start();
+		state = 1;
 	}
 	
-	y++;
-
+	if(state == 1){
+		create_sequence(2000, y);
+		for(int j = 0; j < (y+1); j++){//leer el boton "y" veces
+			btn_a_led(j);
+		}
+		int usr_entry = verify_entry(y);
+		if(usr_entry == 0){
+			state = 0;
+			reset();
+		}
+		y++;
+	}
 
     /* USER CODE BEGIN 3 */
   }

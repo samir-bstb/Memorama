@@ -199,6 +199,7 @@ int main(void)
 	if(state == 0){
 		start();
 		state = 1;
+		y = 0;
 	}
 	
 	if(state == 1){

@@ -135,6 +135,7 @@ void reset(){
 	}
 	for (int i = 0; i < 10; i++) {
 		cur_sec[i] = 0;
+		user_sec[i] = 0;
 	}
 }
 
@@ -165,7 +166,7 @@ void play_sequence(int lim){
 	}
 }
 
-int verify_entry(int lim){ //determines whether the user wins or loses
+int verify_entry(int lim){ //determines whether the user continues/wins or loses
 	for(int i = 0; i <= lim; i++){
 		if (user_sec[i] != cur_sec[i]){
 			return 0; //returns False

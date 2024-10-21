@@ -104,7 +104,7 @@ void btn_a_led(int idx){
                 while (HAL_GPIO_ReadPin(Button_Ports[i], Button_Pins[i]) == GPIO_PIN_SET);
                 HAL_Delay(40);
                 user_sec[idx] = (x|1) << (4-i); //posicion en la que el usuario prende un led
-		HAL_Delay(600);
+                HAL_Delay(600);
                 HAL_GPIO_WritePin(led_ports[i], led_pins[i], GPIO_PIN_RESET);  // Turn LED off
             }
 		}
@@ -122,7 +122,7 @@ void start(){
 	if(x == 1){
 		LCD_WR_inst(LCD_clean);
 		LCD_WR_string("Comenzando...");
-		HAL_Delay(2500);
+		HAL_Delay(2000);
 		LCD_WR_inst(LCD_clean);
 	}
 }
@@ -148,7 +148,24 @@ void create_sequence(int delay, int idx){
 	HAL_GPIO_WritePin(led_ports[k], led_pins[k], GPIO_PIN_RESET);
 }
 
-int verify_entry(int lim){ //determines whether the user continues or loses
+void play_sequence(int lim){
+	for(int i = 0; i< lim; i++){
+		int count = 0;//explain
+		int aux = cur_sec[i];
+		while(aux != 0){
+			if(aux & 1){
+				break; //breaks the loop when the position of the led to turn on is identified
+			}
+			aux >>= 1;
+			count += 1;
+		}
+		HAL_GPIO_WritePin(led_ports[count], led_pins[count], GPIO_PIN_SET);
+		HAL_Delay(700); //should be a parameter,and modified depending on the level
+		HAL_GPIO_WritePin(led_ports[count], led_pins[count], GPIO_PIN_RESET);
+	}
+}
+
+int verify_entry(int lim){ //determines whether the user wins or loses
 	for(int i = 0; i <= lim; i++){
 		if (user_sec[i] != cur_sec[i]){
 			return 0; //returns False
@@ -202,10 +219,10 @@ int main(void)
 		state = 1;
 		y = 0;
 	}
-	
+
 	if(state == 1){
 		create_sequence(2000, y);
-		//add a function that plays the secuence
+		play_sequence(y);
 		for(int j = 0; j < (y+1); j++){//leer el boton "y" veces
 			btn_a_led(j);
 		}

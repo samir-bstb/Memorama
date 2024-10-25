@@ -113,6 +113,79 @@ void btn_a_led(int idx){
 	return;
 }
 
+uint8_t botones_nivel(uint8_t nivel_act){
+	uint8_t nivel_max = 3;
+
+	while(1)
+	{
+		if(HAL_GPIO_ReadPin(btn_up_GPIO_Port, btn_up_Pin)){
+			HAL_Delay(40);
+			while(HAL_GPIO_ReadPin(btn_up_GPIO_Port, btn_up_Pin));
+			HAL_Delay(40);
+			if(nivel_act > 1){
+				nivel_act --;
+				break;
+			}
+		} else if(HAL_GPIO_ReadPin(btn_down_GPIO_Port, btn_down_Pin)){
+			HAL_Delay(40);
+			while(HAL_GPIO_ReadPin(btn_down_GPIO_Port, btn_down_Pin));
+			HAL_Delay(40);
+			if(nivel_act < nivel_max){
+				nivel_act ++;
+				break;
+			}
+		} else if(HAL_GPIO_ReadPin(btn_center_GPIO_Port, btn_center_Pin)){
+			HAL_Delay(40);
+			while(HAL_GPIO_ReadPin(btn_center_GPIO_Port, btn_center_Pin));
+			HAL_Delay(40);
+			return 0;
+		}
+	}
+
+	return nivel_act;
+}
+
+
+uint8_t mostrar_niveles(void)
+{
+	uint8_t nivel = 1;
+	uint8_t aux;
+
+	while(1){
+
+		LCD_WR_inst(LCD_clean);
+		aux = 0;
+
+		if (nivel == 1) {
+			LCD_WR_string("> Facil");
+			LCD_WR_inst(LCD_secondLine);
+			LCD_WR_string("  Intermedio");
+
+		} else if (nivel == 2) {
+			LCD_WR_string("  Facil");
+			LCD_WR_inst(LCD_secondLine);
+			LCD_WR_string("> Intermedio");
+
+		} else if (nivel == 3) {
+			LCD_WR_string("  Intermedio");
+			LCD_WR_inst(LCD_secondLine);
+			LCD_WR_string("> Dificil");
+		}
+
+
+        HAL_Delay(100);
+        aux = botones_nivel(nivel);
+        if(aux == 0){
+        	return nivel;
+        } else {
+        	nivel = aux;
+        }
+
+	}
+
+}
+
+
 //Game inicialization
 void start(){
 	LCD_WR_string("MEMORAMA");
@@ -124,6 +197,13 @@ void start(){
 		LCD_WR_string("Comenzando...");
 		HAL_Delay(2000);
 		LCD_WR_inst(LCD_clean);
+		LCD_WR_string("Selecciona un");
+		LCD_WR_inst(0b11000000);
+		LCD_WR_string("Nivel");
+		HAL_Delay(2000);
+		uint8_t nivel = mostrar_niveles();
+		LCD_WR_inst(LCD_clean);
+		LCD_WR_string("Seleccionado!!");
 	}
 }
 
@@ -172,7 +252,11 @@ int verify_entry(int lim){ //determines whether the user continues/wins or loses
 			return 0; //returns False
 		}
 	}
+
+	return 1;
 }
+
+
 
 
 int main(void)
@@ -207,6 +291,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  LCD_init();
   btn_init();
   led_init();
   int y = 0; //sequence length

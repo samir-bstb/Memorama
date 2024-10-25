@@ -245,6 +245,7 @@ void play_sequence(int lim){
 			aux >>= 1;
 			count += 1;
 		}
+		count = abs(count - 4);
 		HAL_GPIO_WritePin(led_ports[count], led_pins[count], GPIO_PIN_SET);
 		HAL_Delay(delay); //should be a parameter,and modified depending on the level
 		HAL_GPIO_WritePin(led_ports[count], led_pins[count], GPIO_PIN_RESET);

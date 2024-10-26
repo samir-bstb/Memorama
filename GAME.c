@@ -74,7 +74,7 @@ uint16_t led_pins[] = {led_up_Pin, led_right_Pin , led_down_Pin , led_left_Pin, 
 GPIO_TypeDef* Button_Ports[] = {btn_up_GPIO_Port, btn_right_GPIO_Port, btn_down_GPIO_Port, btn_left_GPIO_Port, btn_center_GPIO_Port};
 uint16_t Button_Pins[] = {btn_up_Pin, btn_right_Pin, btn_down_Pin , btn_left_Pin, btn_center_Pin};
 
-int cur_sec[10];
+int cur_sec[20];
 
 int user_sec[20]; //suitable for every level (easy, medium & hard)
 
@@ -97,7 +97,7 @@ int read_buttons(void){
 	}
 }
 
-int btn_a_led(int idx){
+int build_usr_seq(int idx){
 	int x = 0;
 	while(1){
 		for(int i = 0; i < 5; i++){
@@ -120,25 +120,23 @@ int btn_a_led(int idx){
 	}
 }
 
-int botones_nivel(int nivel_act){
-	int nivel_max = 3;
-
+int button_to_level(int cur_lev){
 	while(1)
 	{
 		if(HAL_GPIO_ReadPin(btn_up_GPIO_Port, btn_up_Pin)){
 			HAL_Delay(40);
 			while(HAL_GPIO_ReadPin(btn_up_GPIO_Port, btn_up_Pin));
 			HAL_Delay(40);
-			if(nivel_act > 1){
-				nivel_act --;
+			if(cur_lev > 1){
+				cur_lev --;
 				break;
 			}
 		} else if(HAL_GPIO_ReadPin(btn_down_GPIO_Port, btn_down_Pin)){
 			HAL_Delay(40);
 			while(HAL_GPIO_ReadPin(btn_down_GPIO_Port, btn_down_Pin));
 			HAL_Delay(40);
-			if(nivel_act < nivel_max){
-				nivel_act ++;
+			if(cur_lev < 3){
+				cur_lev ++;
 				break;
 			}
 		} else if(HAL_GPIO_ReadPin(btn_center_GPIO_Port, btn_center_Pin)){
@@ -149,13 +147,13 @@ int botones_nivel(int nivel_act){
 		}
 	}
 
-	return nivel_act;
+	return cur_lev;
 }
 
 
-int mostrar_niveles(void)
+int show_level(void)
 {
-	int nivel = 1;
+	int level = 1;
 	int aux;
 
 	while(1){
@@ -163,29 +161,29 @@ int mostrar_niveles(void)
 		LCD_WR_inst(LCD_clean);
 		aux = 0;
 
-		if (nivel == 1) {
-			LCD_WR_string("> Facil");
+		if (level == 1) {
+			LCD_WR_string("> Easy");
 			LCD_WR_inst(LCD_secondLine);
-			LCD_WR_string("  Intermedio");
+			LCD_WR_string("  Mid");
 
-		} else if (nivel == 2) {
-			LCD_WR_string("  Facil");
+		} else if (level == 2) {
+			LCD_WR_string("  Easy");
 			LCD_WR_inst(LCD_secondLine);
-			LCD_WR_string("> Intermedio");
+			LCD_WR_string("> Mid");
 
-		} else if (nivel == 3) {
-			LCD_WR_string("  Intermedio");
+		} else if (level == 3) {
+			LCD_WR_string("  Mid");
 			LCD_WR_inst(LCD_secondLine);
-			LCD_WR_string("> Dificil");
+			LCD_WR_string("> Hard");
 		}
 
 
         HAL_Delay(100);
-        aux = botones_nivel(nivel);
+        aux = button_to_level(level);
         if(aux == 0){
-        	return nivel;
+        	return level;
         } else {
-        	nivel = aux;
+        	level = aux;
         }
 	}
 }
@@ -195,26 +193,19 @@ int mostrar_niveles(void)
 void start(){
 	LCD_WR_string("    MEMORAMA");
 	LCD_WR_inst(0b11000000);
-	LCD_WR_string("Pulse un boton");
+	LCD_WR_string("Press any button");
 	int x = read_buttons();
 	if(x == 1){
 		LCD_WR_inst(LCD_clean);
-		LCD_WR_string("Comenzando...");
+		LCD_WR_string("Starting...");
 		HAL_Delay(1000);
 		LCD_WR_inst(LCD_clean);
-		LCD_WR_string("Selecciona un");
-		LCD_WR_inst(0b11000000);
-		LCD_WR_string("Nivel");
+		LCD_WR_string("Select a level");
 		HAL_Delay(1000);
-		nivel_selec = mostrar_niveles();
+		nivel_selec = show_level();
 		LCD_WR_inst(LCD_clean);
-		LCD_WR_string("Seleccionado");
-		/*
-		HAL_Delay(800);
-		LCD_WR_inst(LCD_clean);
-		LCD_WR_string("A jugar!!");
-		HAL_Delay(1000);
-		*/
+		LCD_WR_string("Selecting...");
+		HAL_Delay(400);
 	}
 }
 
@@ -224,7 +215,7 @@ void reset(){
 	for (int i = 0; i < 5; i++) {
 		HAL_GPIO_WritePin(led_ports[i], led_pins[i], GPIO_PIN_RESET);
 	}
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 20; i++) {
 		cur_sec[i] = 0;
 		user_sec[i] = 0;
 	}
@@ -267,11 +258,17 @@ int verify_entry(int lim){ //determines whether the user continues/wins or loses
 
 void win(void){
 	LCD_WR_inst(LCD_clean);
-	LCD_WR_string("Felicidades");
+	LCD_WR_string("Well played :)");
 	LCD_WR_inst(LCD_secondLine);
-	LCD_WR_string("Ganaste!!");
+	LCD_WR_string("You WIN!!!");
 }
 
+void lose(void){
+	LCD_WR_inst(LCD_clean);
+	LCD_WR_inst(0b10000101);
+	LCD_WR_string("Game over ):");
+	HAL_Delay(500);
+}
 
 
 int main(void)
@@ -309,11 +306,10 @@ int main(void)
   LCD_init();
   btn_init();
   led_init();
+
   int y = 0; //sequence length
   int state = 0; // 0 (when you lose or the game is starting), 1 (when playing)
   int lim;
-
-
 
   while (1)
   {
@@ -329,10 +325,10 @@ int main(void)
 		char sentence[4];
 		sprintf(sentence, "%d", y);
 		LCD_WR_string(sentence);
+
 		if(nivel_selec == 1){
 		  delay -= 25;
 		  lim = 4; //lim 10
-
 		} else if(nivel_selec == 2){
 		  delay -= 32;
 		  lim = 15;
@@ -345,9 +341,10 @@ int main(void)
 		create_sequence(y);
 		play_sequence(y + 1);
 		for(int j = 0; j < (y + 1); j++){//leer el boton "y" veces
-			int v = btn_a_led(j);
-			if(v == 0){
+			int e = build_usr_seq(j);
+			if(e == 0){
 				state = 0;
+				lose();
 				reset();
 				break;
 			}
@@ -357,8 +354,7 @@ int main(void)
 			int usr_entry = verify_entry(y);
 
 			if(usr_entry == 0){
-				LCD_WR_string("Perdiste ):");
-				HAL_Delay(500);
+				lose();
 				state = 0;
 				reset();
 			}

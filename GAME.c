@@ -78,7 +78,7 @@ int cur_sec[20];
 
 int user_sec[20]; //suitable for every level (easy, medium & hard)
 
-int delay = 500; //regresarlo a 1000
+int delay = 1000; //regresarlo a 1000
 
 int nivel_selec = 0;
 //button read functions
@@ -219,6 +219,8 @@ void reset(){
 		cur_sec[i] = 0;
 		user_sec[i] = 0;
 	}
+	delay = 1000;
+	nivel_selec = 0;
 }
 
 void create_sequence(int idx){

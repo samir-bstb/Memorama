@@ -335,7 +335,7 @@ int main(void)
 
 		if(nivel_selec == 1){
 		  delay -= 25;
-		  lim = 3; //lim 10
+		  lim = 10; //lim 10
 		} else if(nivel_selec == 2){
 		  delay -= 32;
 		  lim = 15;

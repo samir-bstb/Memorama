@@ -194,6 +194,7 @@ void start(){
 	LCD_WR_string("    MEMORAMA");
 	LCD_WR_inst(0b11000000);
 	LCD_WR_string("Press any button");
+	//HAL_GPIO_WritePin(led_up_GPIO_Port, led_up_Pin, GPIO_PIN_SET);
 	int x = read_buttons();
 	if(x == 1){
 		LCD_WR_inst(LCD_clean);
@@ -245,7 +246,7 @@ void play_sequence(int lim){
 		HAL_GPIO_WritePin(led_ports[count], led_pins[count], GPIO_PIN_SET);
 		HAL_Delay(delay); //should be a parameter,and modified depending on the level
 		HAL_GPIO_WritePin(led_ports[count], led_pins[count], GPIO_PIN_RESET);
-		HAL_Delay(100);
+		HAL_Delay(500);
 	}
 }
 
@@ -263,13 +264,14 @@ void win(void){
 	LCD_WR_string("Well played :)");
 	LCD_WR_inst(LCD_secondLine);
 	LCD_WR_string("You WIN!!!");
+	HAL_Delay(2200);
 }
 
 void lose(void){
 	LCD_WR_inst(LCD_clean);
-	LCD_WR_inst(0b10000101);
-	LCD_WR_string("Game over ):");
-	HAL_Delay(500);
+	LCD_WR_inst(0b10000100);
+	LCD_WR_string("Game over");
+	HAL_Delay(2200);
 }
 
 
@@ -324,13 +326,16 @@ int main(void)
 
 	if(state == 1){
 		LCD_WR_inst(LCD_clean);
+		LCD_WR_string("Your turn");
+		LCD_WR_inst(LCD_secondLine);
+		LCD_WR_string("Rpund: ");
 		char sentence[4];
-		sprintf(sentence, "%d", y);
+		sprintf(sentence, "%d", (y + 1));
 		LCD_WR_string(sentence);
 
 		if(nivel_selec == 1){
 		  delay -= 25;
-		  lim = 4; //lim 10
+		  lim = 3; //lim 10
 		} else if(nivel_selec == 2){
 		  delay -= 32;
 		  lim = 15;
@@ -361,12 +366,14 @@ int main(void)
 				reset();
 			}
 
+			y++;
+
 			if(lim == y){
 				state = 0;
 				win();
 				reset();
 			}
-			y++;
+
 		}
 	}
 

@@ -206,7 +206,7 @@ void start(){
 		nivel_selec = show_level();
 		LCD_WR_inst(LCD_clean);
 		LCD_WR_string("Selecting...");
-		HAL_Delay(400);
+		HAL_Delay(1200);
 	}
 }
 
@@ -328,7 +328,7 @@ int main(void)
 		LCD_WR_inst(LCD_clean);
 		LCD_WR_string("Your turn");
 		LCD_WR_inst(LCD_secondLine);
-		LCD_WR_string("Rpund: ");
+		LCD_WR_string("Round: ");
 		char sentence[4];
 		sprintf(sentence, "%d", (y + 1));
 		LCD_WR_string(sentence);
@@ -345,6 +345,7 @@ int main(void)
 
 		}
 
+		HAL_Delay(500);
 		create_sequence(y);
 		play_sequence(y + 1);
 		for(int j = 0; j < (y + 1); j++){//leer el boton "y" veces

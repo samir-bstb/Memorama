@@ -380,7 +380,7 @@ int main(void)
 		HAL_Delay(500);
 		create_sequence(y);
 		play_sequence(y + 1);
-		for(int j = 0; j < (y + 1); j++){//leer el boton "y" veces
+		for(int j = 0; j < (y + 1); j++){//read buttons "y" times
 			int e = build_usr_seq(j);
 			if(e == 0){
 				state = 0;
